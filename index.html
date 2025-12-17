@@ -665,7 +665,7 @@
                   <input
                     type="text"
                     class="form-control"
-                    name="nama"
+                    id="nama"
                     placeholder="Masukkan nama lengkap"
                     required
                   />
@@ -675,7 +675,7 @@
                 <!-- 2. Program -->
                 <div class="mb-3">
                   <label class="form-label fw-semibold">Program Kursus</label>
-                  <select class="form-select" name="program" required>
+                  <select class="form-select" id="program" required>
                     <option value="" selected disabled>Pilih program</option>
                     <option>Desain Grafis</option>
                     <option>Web Programming</option>
@@ -695,7 +695,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      name="nik"
+                      id="nik"
                       placeholder="Contoh: 1234567890"
                       required
                     />
@@ -708,7 +708,7 @@
                     <input
                       type="tel"
                       class="form-control"
-                      name="wa"
+                      id="wa"
                       placeholder="Contoh: 081234567890"
                       required
                     />
@@ -723,7 +723,7 @@
                   <label class="form-label fw-semibold">Alamat</label>
                   <textarea
                     class="form-control"
-                    name="alamat"
+                    id="alamat"
                     rows="3"
                     placeholder="Masukkan alamat"
                     required
@@ -877,29 +877,44 @@
       })();
     </script>
     <script>
-      // KIRIM DATA KE GOOGLE SHEETS
+      const form = document.getElementById("formDaftar");
+      const statusDiv = document.getElementById("status");
 
-      fetch(
-        "https://script.google.com/macros/s/AKfycbzIMRh6ymEgxi-SUZbm9ZTje-Na-DJ6SXw5EGEp0Fc3qm3xJ3qPVS0t1hoA5-_dAWEA/exec",
-        {
-          method: "POST",
-          body: new URLSearchParams({
-            nama: nama,
-            program: program,
-            nik: nik,
-            alamat: alamat,
-            wa: wa,
-          }),
+      form.addEventListener("submit", function (e) {
+        e.preventDefault(); // stop reload
+
+        if (!form.checkValidity()) {
+          form.classList.add("was-validated");
+          return;
         }
-      )
-        .then((res) => res.text())
-        .then((data) => {
-          showToast("🎉 Berhasil", "Data masuk ke Google Sheets");
-        })
-        .catch((err) => {
-          showToast("❌ Gagal", "Data tidak terkirim");
+
+        const data = new URLSearchParams({
+          nama: document.getElementById("nama").value,
+          program: document.getElementById("program").value,
+          nik: document.getElementById("nik").value,
+          alamat: document.getElementById("alamat").value,
+          wa: document.getElementById("wa").value,
         });
+
+        fetch(
+          "https://script.google.com/macros/s/AKfycbzIMRh6ymEgxi-SUZbm9ZTje-Na-DJ6SXw5EGEp0Fc3qm3xJ3qPVS0t1hoA5-_dAWEA/exec",
+          {
+            method: "POST",
+            body: data,
+          }
+        )
+          .then((res) => res.text())
+          .then(() => {
+            statusDiv.innerHTML =
+              '<div class="alert alert-success">🎉 Pendaftaran berhasil!</div>';
+            form.reset();
+            form.classList.remove("was-validated");
+          })
+          .catch(() => {
+            statusDiv.innerHTML =
+              '<div class="alert alert-danger">❌ Gagal mengirim data</div>';
+          });
+      });
     </script>
   </body>
 </html>
-
